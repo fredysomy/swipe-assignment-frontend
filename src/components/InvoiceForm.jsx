@@ -5,6 +5,7 @@ import Tabs from "react-bootstrap/Tabs";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import Table from 'react-bootstrap/Table';
 import Card from "react-bootstrap/Card";
 import InvoiceItem from "./InvoiceItem";
 import InvoiceModal from "./InvoiceModal";
@@ -27,7 +28,8 @@ const InvoiceForm = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [copyId, setCopyId] = useState("");
-  const { getOneInvoice, listSize } = useInvoiceListData();
+  const { getOneInvoice, listSize ,invoiceList} = useInvoiceListData();
+  console.log(getOneInvoice(params.id))
   const [formData, setFormData] = useState(
     isEdit
       ? getOneInvoice(params.id)
@@ -58,7 +60,7 @@ const InvoiceForm = () => {
           currency: "$",
           items: [
             {
-              itemId: 0,
+              itemId:  Math.floor(Math.random() * 1000),
               itemName: "",
               itemDescription: "",
               itemPrice: "1.00",
@@ -81,7 +83,7 @@ const InvoiceForm = () => {
   };
 
   const handleAddEvent = () => {
-    const id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
+    const id = Math.floor(Math.random() * 1000);
     const newItem = {
       itemId: id,
       itemName: "",
@@ -128,15 +130,18 @@ const InvoiceForm = () => {
   };
 
   const onItemizedItemEdit = (evt, id) => {
-    const updatedItems = formData.items.map((oldItem) => {
-      if (oldItem.itemId === id) {
-        return { ...oldItem, [evt.target.name]: evt.target.value };
-      }
-      return oldItem;
+    const { name, value } = evt.target;
+    setFormData((prevFormData) => {
+      const updatedItems = prevFormData.items.map((item) => {
+        console.log(item.itemId, id)
+        if (item.itemId === id) {
+          return { ...item, [name]: value };
+        }
+        return item;
+      });
+  
+      return { ...prevFormData, items: updatedItems };
     });
-
-    setFormData({ ...formData, items: updatedItems });
-    handleCalculateTotal();
   };
 
   const editField = (name, value) => {
@@ -159,6 +164,7 @@ const InvoiceForm = () => {
   };
 
   const handleAddInvoice = () => {
+    console.log(formData.items)
     if (isEdit) {
       dispatch(updateInvoice({ id: params.id, updatedInvoice: formData }));
       alert("Invoice updated successfuly 🥳");
@@ -501,11 +507,42 @@ const InvoiceForm = () => {
           </Row>
         </Tab>
         <Tab eventKey="products" title="Products">
-          <Row className="h-100 ">
+          <Row>
+            {console.log(invoiceList)}
             <Col>
-              <Card className="p-4 p-xl-5 my-3 my-xl-4 h-75 w-100 ">
+              <Card className="p-4 p-xl-5 my-3 my-xl-4  w-100 ">
                 <h2>Products</h2>
-                
+                {invoiceList.map((invoice, invoiceIndex) => (
+        // Explicitly return the fragment and its contents
+        <React.Fragment key={invoice.id || invoiceIndex}>
+          <h5>Invoice Number: {invoice.invoiceNumber}</h5>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Item Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoice.items.map((item, index) => (
+                <tr key={item.itemId || index}>
+                  <td>{index + 1}</td>
+                  <td>{item.itemName || 'N/A'}</td>
+                  <td>{item.itemDescription || 'N/A'}</td>
+                  <td>${item.itemPrice}</td>
+                  <td>{item.itemQuantity}</td>
+                  <td>${(parseFloat(item.itemPrice) * parseFloat(item.itemQuantity)).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </React.Fragment>
+      ))}
+
               </Card>
             </Col>
           </Row>

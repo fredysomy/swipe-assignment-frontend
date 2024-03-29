@@ -11,7 +11,7 @@ export const useInvoiceListData = () => {
       ) || null
     );
   };
-
+  
   const listSize = invoiceList.length;
 
   return {
