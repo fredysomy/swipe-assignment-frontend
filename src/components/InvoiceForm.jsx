@@ -29,7 +29,7 @@ const InvoiceForm = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [copyId, setCopyId] = useState("");
   const { getOneInvoice, listSize ,invoiceList} = useInvoiceListData();
-  console.log(getOneInvoice(params.id))
+ 
   const [formData, setFormData] = useState(
     isEdit
       ? getOneInvoice(params.id)
@@ -164,7 +164,7 @@ const InvoiceForm = () => {
   };
 
   const handleAddInvoice = () => {
-    console.log(formData.items)
+    console.log(params)
     if (isEdit) {
       dispatch(updateInvoice({ id: params.id, updatedInvoice: formData }));
       alert("Invoice updated successfuly 🥳");
